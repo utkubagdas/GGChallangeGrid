@@ -1,68 +1,82 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System;
-using UnityEngine.UI;
 
 public class GridCreator : MonoBehaviour
 {
-    public GameObject grid;
-    private int col;
-    private int row;
-    public Transform spawnPos;
-    float width;
-    float height;
-    public Transform leftUp;
-    public Transform rightDown;
-    float panelXSize;
-    float panelYSize;
-    public TMP_InputField colText;
-    public TMP_InputField rowText;
-    private List<GameObject> gridList = new List<GameObject>();
+    [SerializeField] private GridCell gridPrefab;
+    [SerializeField] private TMP_InputField inputText;
+    [SerializeField] private TextMeshProUGUI buttonText;
+    [SerializeField] private TextMeshProUGUI matchCountText;
+
+    public GridCell[,] grid;
+    private bool buttonTextisChanged;
+    private int matchCount;
+    
+    public int Column { get; private set; }
 
     public void CreateGrid()
     {
-        col = Convert.ToInt32(colText.text);
-        row = Convert.ToInt32(rowText.text);
+        if (string.IsNullOrEmpty(inputText.text) || Convert.ToInt32(inputText.text) <= 0)
+            return;
         
+        if (grid != null)
+        {
+            matchCount = 0;
+            UpdateMatchCountText(0);
+            ClearGridCells();
+        }
+        
+        Column = Convert.ToInt32(inputText.text);
 
-        ClearGrid();
+        grid = new GridCell[Column, Column];
         GenerateGrid();
+
+        if (!buttonTextisChanged)
+        {
+            buttonText.SetText("Rebuild");
+            buttonTextisChanged = true;
+        }
+        
     }
-    
 
     private void GenerateGrid()
     {
-        panelXSize = Mathf.Abs(leftUp.position.x - rightDown.position.x);
-        panelYSize = Mathf.Abs(leftUp.position.y - rightDown.position.y);
+        var cam = Camera.main;
+        Vector3 topLeft = cam.ScreenToWorldPoint(new Vector3(0, Screen.height, cam.nearClipPlane));
+        Vector3 bottomRight = cam.ScreenToWorldPoint(new Vector3(Screen.width, 0, cam.nearClipPlane));
 
-        float width = panelXSize / row;
-        float height = panelYSize / col;
+        float panelXSize = Mathf.Abs(topLeft.x - bottomRight.x);
+        float panelYSize = Mathf.Abs(topLeft.y - bottomRight.y);
 
-        float defaultGridScaleX = grid.transform.lossyScale.x;
-        float defaultGridScaleY = grid.transform.lossyScale.y;
+        float width = panelXSize / Column;
+        float height = panelYSize / Column / 1.25f;
 
-        float defaultWidth = grid.GetComponentInChildren<SpriteRenderer>().bounds.size.x;
-        float defaultHeight = grid.GetComponentInChildren<SpriteRenderer>().bounds.size.y;
+        width = Mathf.Min(width, height);
+        height = width;
+
+        float defaultGridScaleX = gridPrefab.transform.lossyScale.x;
+        float defaultGridScaleY = gridPrefab.transform.lossyScale.y;
+
+        float defaultWidth = gridPrefab.GetComponentInChildren<SpriteRenderer>().bounds.size.x;// / 1.3f;
+        float defaultHeight = gridPrefab.GetComponentInChildren<SpriteRenderer>().bounds.size.y;// / 1.3f;
 
         float scaleX = defaultGridScaleX * width / defaultWidth;
         float scaleY = defaultGridScaleY * height / defaultHeight;
 
-        
-        float x = width / 2f;
-        float y = height / 2f;
-        Vector3 startPos = spawnPos.position + new Vector3(x, -y);
+        float offsetFromTopInWorld = 0.0f;
+        Vector3 startPos = topLeft + new Vector3(width * 0.5f, -(offsetFromTopInWorld + (height * 0.5f)) , 5);
         Vector3 spawnPosition = startPos;
 
-        for (int i = 0; i < col; i++)
+        for (int i = 0; i < Column; i++)
         {
             spawnPosition.y = startPos.y - i * height;
-            for (int k = 0; k < row; k++)
+            for (int j = 0; j < Column; j++)
             {
-                spawnPosition.x = startPos.x + k * width;
-                var gridObj = Instantiate(grid);
-                gridList.Add(gridObj);
+                spawnPosition.x = startPos.x + j * width;
+                var gridObj = Instantiate(gridPrefab);
+                grid[i, j] = gridObj;
+                gridObj.InitializeGrid(i, j);
                 gridObj.transform.localScale = new Vector3(scaleX, scaleY, gridObj.transform.localScale.z);
                 gridObj.transform.position = spawnPosition;
                 
@@ -70,13 +84,26 @@ public class GridCreator : MonoBehaviour
         }
     }
 
-    private void ClearGrid()
+    private void UpdateMatchCountText(int count)
     {
+        matchCountText.SetText("Match Count : " + count);
+    }
 
-        for (int i = 0; i < gridList.Count; i++)
+    public void IncreaseMatchCount(int count)
+    {
+        matchCount += count;
+        UpdateMatchCountText(matchCount);
+    }
+    
+    public void ClearGridCells()
+    {
+        for (int i = 0; i < Column; i++)
         {
-            Destroy(gridList[i]);
+            for (int j = 0; j < Column; j++)
+            {
+                if (grid[i, j] == null) continue;
+                Destroy(grid[i, j].gameObject);
+            }
         }
-        gridList.Clear();
     }
 }
