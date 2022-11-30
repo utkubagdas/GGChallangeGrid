@@ -21,7 +21,6 @@ public class GridCreator : MonoBehaviour
     
     #region Property
     public int Column { get; private set; }
-    public int Row { get; private set; }
     #endregion
     
     #region Singleton
@@ -112,8 +111,8 @@ public class GridCreator : MonoBehaviour
         float defaultGridScaleX = gridPrefab.transform.lossyScale.x;
         float defaultGridScaleY = gridPrefab.transform.lossyScale.y;
 
-        float defaultWidth = gridPrefab.GetComponentInChildren<SpriteRenderer>().bounds.size.x;// / 1.3f;
-        float defaultHeight = gridPrefab.GetComponentInChildren<SpriteRenderer>().bounds.size.y;// / 1.3f;
+        float defaultWidth = gridPrefab.GetComponentInChildren<SpriteRenderer>().bounds.size.x;
+        float defaultHeight = gridPrefab.GetComponentInChildren<SpriteRenderer>().bounds.size.y;
 
         float scaleX = defaultGridScaleX * width / defaultWidth;
         float scaleY = defaultGridScaleY * height / defaultHeight;
