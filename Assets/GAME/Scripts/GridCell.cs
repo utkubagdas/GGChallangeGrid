@@ -63,13 +63,9 @@ public class GridCell : MonoBehaviour
         int lastRow = grid.Column;
 
         // check right cells
-        for (int i = myCol+1; i <= myCol + requiredNeighborCount && i < lastCol; i++)
+        if (myCol+1 < lastCol && grid.HasMark(myRow, myCol+1) && !grid.IsVisited(myRow, myCol + 1))
         {
-            if (grid.HasMark(myRow,i) && !grid.IsVisited(myRow, i))
-            {
-                unvisitedNeighbors.Add(grid.ElementAt(myRow,i));
-            }
-            else break; // Do not jump over empty tiles.
+            unvisitedNeighbors.Add(grid.ElementAt(myRow, myCol + 1));
         }
 
         //Debug.Log($"Checking for: row,col <{myRow}, {myCol}>");
@@ -79,37 +75,25 @@ public class GridCell : MonoBehaviour
         int testCount = unvisitedNeighbors.Count;
 
         // check left cells
-        for (int i = myCol-1; i >= myCol - requiredNeighborCount && i >= 0; i--)
+        if (myCol-1 >= 0 && grid.HasMark(myRow, myCol-1) && !grid.IsVisited(myRow, myCol-1))
         {
-            if (grid.HasMark(myRow, i) && !grid.IsVisited(myRow, i))
-            {
-                unvisitedNeighbors.Add(grid.ElementAt(myRow, i));
-            }
-            else break;
+            unvisitedNeighbors.Add(grid.ElementAt(myRow, myCol - 1));
         }
         debug += $"Left:{unvisitedNeighbors.Count - testCount}, ";
         testCount = unvisitedNeighbors.Count;
 
         // check below cells
-        for (int i = myRow+1; i <= myRow + requiredNeighborCount && i < lastRow; i++)
+        if (myRow+1 < lastRow && grid.HasMark(myRow + 1, myCol) && !grid.IsVisited(myRow + 1, myCol))
         {
-            if (grid.HasMark(i, myCol) && !grid.IsVisited(i, myCol))
-            {
-                unvisitedNeighbors.Add(grid.ElementAt(i, myCol));
-            }
-            else break;
+            unvisitedNeighbors.Add(grid.ElementAt(myRow + 1, myCol));
         }
         debug += $"Below:{unvisitedNeighbors.Count - testCount}, ";
         testCount = unvisitedNeighbors.Count;
 
         // check above cells
-        for (int i = myRow-1; i >= myRow - requiredNeighborCount && i >= 0; i--)
+        if (myRow-1 >= 0 && grid.HasMark(myRow - 1, myCol) && !grid.IsVisited(myRow - 1, myCol))
         {
-            if (grid.HasMark(i, myCol) && !grid.IsVisited(i, myCol))
-            {
-                unvisitedNeighbors.Add(grid.ElementAt(i, myCol));
-            }
-            else break;
+            unvisitedNeighbors.Add(grid.ElementAt(myRow - 1, myCol));
         }
 
         debug += $"Above:{unvisitedNeighbors.Count - testCount} neighbours.";
