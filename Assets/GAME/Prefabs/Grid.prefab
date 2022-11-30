@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   xText: {fileID: 1754310343017882863}
+  requiredNeighborCount: 10
 --- !u!65 &2118235071714619083
 BoxCollider:
   m_ObjectHideFlags: 0
