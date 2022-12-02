@@ -108,8 +108,9 @@ public class GridCreator : MonoBehaviour
         width = Mathf.Min(width, height);
         height = width;
 
-        float defaultGridScaleX = gridPrefab.transform.lossyScale.x;
-        float defaultGridScaleY = gridPrefab.transform.lossyScale.y;
+        var lossyScale = gridPrefab.transform.lossyScale;
+        float defaultGridScaleX = lossyScale.x;
+        float defaultGridScaleY = lossyScale.y;
 
         float defaultWidth = gridPrefab.GetComponentInChildren<SpriteRenderer>().bounds.size.x;
         float defaultHeight = gridPrefab.GetComponentInChildren<SpriteRenderer>().bounds.size.y;
@@ -130,8 +131,9 @@ public class GridCreator : MonoBehaviour
                 var gridObj = Instantiate(gridPrefab, gridsParent.transform, true);
                 gridCellArray[i, j] = gridObj;
                 gridObj.InitializeGrid(i, j);
-                gridObj.transform.localScale = new Vector3(scaleX, scaleY, gridObj.transform.localScale.z);
-                gridObj.transform.position = spawnPosition;
+                var gridObjTransform = gridObj.transform;
+                gridObjTransform.localScale = new Vector3(scaleX, scaleY, gridObjTransform.localScale.z);
+                gridObjTransform.position = spawnPosition;
                 
             }
         }
